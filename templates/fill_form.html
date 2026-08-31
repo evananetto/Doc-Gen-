@@ -1,0 +1,247 @@
+<!-- templates/fill_form.html -->
+{% extends "base.html" %}
+
+{% block title %}Fill Form · DocGen{% endblock %}
+
+{% block content %}
+<div class="flex h-screen overflow-hidden bg-[#f6f8fc]">
+    <!-- Sidebar -->
+    <aside class="w-72 bg-white/80 backdrop-blur-xl border-r border-white/50 shadow-premium flex flex-col shrink-0">
+        <div class="p-6 border-b border-slate-200/60">
+            <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-200/50">
+                    <i class="fas fa-file-pdf text-white text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-extrabold tracking-tight text-slate-800">DocGen</h1>
+                    <p class="text-xs font-medium text-slate-400 tracking-wide">Document Studio</p>
+                </div>
+            </div>
+        </div>
+
+        <nav class="flex-1 p-5 space-y-1.5">
+            <a href="{{ url_for('dashboard') }}" class="sidebar-link flex items-center gap-3 px-4 py-3.5">
+                <i class="fas fa-upload w-5 text-slate-400"></i>
+                <span>Upload Templates</span>
+            </a>
+            <a href="{{ url_for('recent_documents') }}" class="sidebar-link flex items-center gap-3 px-4 py-3.5">
+                <i class="fas fa-history w-5 text-slate-400"></i>
+                <span>Recent Documents</span>
+            </a>
+        </nav>
+
+        <div class="p-5 border-t border-slate-200/60 space-y-3">
+            <a href="{{ url_for('logout') }}" class="flex items-center gap-3 px-4 py-3 text-rose-600 hover:bg-rose-50/60 rounded-xl transition font-medium">
+                <i class="fas fa-sign-out-alt w-5"></i>
+                <span>Logout</span>
+            </a>
+            <div class="px-4 py-3 bg-white/70 backdrop-blur-sm rounded-2xl border border-slate-200/40">
+                <p class="text-xs font-medium text-slate-400">Signed in as</p>
+                <p class="text-sm font-semibold text-slate-700">{{ username }}</p>
+            </div>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 overflow-y-auto">
+        <!-- header -->
+        <header class="bg-white/70 backdrop-blur-md border-b border-white/40 sticky top-0 z-10 px-8 py-5 flex items-center justify-between">
+            <div>
+                <h2 class="text-2xl font-bold tracking-tight text-slate-800">Fill Form: {{ template.name }}</h2>
+                <p class="text-sm text-slate-400 font-medium">Found {{ bold_instances|length }} bold text instances in this document</p>
+            </div>
+            <div class="flex items-center gap-2 text-sm text-slate-400">
+                <span class="inline-block w-2 h-2 rounded-full bg-emerald-400"></span>
+                <span>system online</span>
+            </div>
+        </header>
+
+        <div class="p-8 max-w-full mx-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Form Section -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-card border border-white/60 p-6">
+                        <h3 class="text-lg font-bold text-slate-800 mb-6">Fill in the Fields</h3>
+                        <p class="text-sm text-slate-500 mb-4">* All fields required</p>
+                        
+                        <form id="formFields" method="POST" action="{{ url_for('generate_document', template_id=template.id) }}">
+                            <input type="hidden" id="templateId" value="{{ template.id }}" />
+                            <div class="space-y-4 max-h-[500px] overflow-y-auto pr-2">
+                                {% for field in bold_instances %}
+                                <div class="field-group p-3 bg-slate-50/50 rounded-xl border border-slate-200/40">
+                                    <label for="field_{{ loop.index }}" class="block text-sm font-semibold text-slate-700 mb-1.5">
+                                        <span class="flex items-start gap-2">
+                                            <span class="bg-indigo-50 text-indigo-600 rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
+                                                {{ loop.index }}
+                                            </span>
+                                            <span class="text-sm break-words">{{ field.text }}</span>
+                                            {% if field.context %}
+                                            <span class="text-xs text-slate-400 font-normal ml-1">
+                                                ({{ field.context[:30] }}...)
+                                            </span>
+                                            {% endif %}
+                                        </span>
+                                    </label>
+                                    <input type="text" 
+                                           id="field_{{ loop.index }}"
+                                           name="field_{{ loop.index }}"
+                                           value=""
+                                           placeholder="Enter value for '{{ field.text }}'"
+                                           class="input-premium w-full px-4 py-2.5 rounded-xl outline-none transition placeholder:text-slate-400/60 font-medium text-sm"
+                                           data-field-id="field_{{ loop.index }}"
+                                           data-original="{{ field.text }}"
+                                           data-run-id="{{ field.run_id }}"
+                                           data-instance-id="field_{{ loop.index }}" />
+                                    <input type="hidden" name="format" id="formatInput" value="pdf" />
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                            <div class="mt-6 flex gap-3">
+                                <button type="button" onclick="generateDocument('pdf')" 
+                        class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 px-4 rounded-2xl shadow-lg shadow-indigo-200/50 flex items-center justify-center gap-2 transition">
+                                <i class="fas fa-file-pdf"></i>
+                                     <span>Generate PDF</span>
+                                </button>
+                                <button type="button" onclick="generateDocument('word')" 
+                         class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-4 rounded-2xl shadow-lg shadow-emerald-200/50 flex items-center justify-center gap-2 transition">
+                                <i class="fas fa-file-word"></i>
+                                    <span>Generate Word</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Preview Section -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-card border border-white/60 p-6 h-full">
+                        <h3 class="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
+                            <i class="fas fa-eye text-indigo-500"></i>
+                            <span>Live Preview</span>
+                            <span class="text-xs font-normal text-slate-400 ml-2">Updates automatically</span>
+                        </h3>
+                        <div id="previewContent" class="bg-slate-50/50 rounded-2xl border border-slate-200/40 h-[600px] overflow-hidden flex items-center justify-center">
+                            <div class="text-center text-gray-400 p-8">
+                                <i class="fas fa-file-pdf text-6xl mb-4 block"></i>
+                                <p class="text-lg">No preview available</p>
+                                <p class="text-sm">Fill in the form fields above to see live preview</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- PDF.js for preview -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+<script src="{{ url_for('static', filename='js/fill_form.js') }}"></script>
+
+<style>
+    /* Additional styles for fill_form */
+    .input-premium {
+        border: 1.5px solid #e2e8f0;
+        background: #f8fafc;
+        transition: all 0.2s ease;
+        font-weight: 500;
+    }
+    
+    .input-premium:focus {
+        border-color: #818cf8;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
+    }
+    
+    .btn-premium {
+        background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        transition: all 0.2s ease;
+    }
+    
+    .btn-premium:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 32px rgba(99, 102, 241, 0.25);
+    }
+    
+    .btn-premium:active {
+        transform: translateY(0);
+    }
+    
+    .field-group {
+        transition: all 0.2s ease;
+    }
+    
+    .field-group:hover {
+        background: #f1f5f9;
+        border-color: #cbd5e1;
+    }
+    
+    .sidebar-link {
+        border-radius: 14px;
+        transition: all 0.2s ease;
+        font-weight: 500;
+        color: #64748b;
+    }
+    
+    .sidebar-link:hover {
+        background: rgba(99, 102, 241, 0.06);
+        color: #1e293b;
+    }
+    
+    .sidebar-link.active {
+        background: rgba(99, 102, 241, 0.08);
+        color: #4f46e5;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    }
+    
+    .shadow-premium {
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.04);
+    }
+    
+    .shadow-card {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 32px rgba(0, 0, 0, 0.04);
+    }
+    
+    /* Scrollbar styles */
+    ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: #d1d5db;
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af;
+    }
+    
+    .max-h-\[500px\] {
+        max-height: 500px;
+    }
+</style>
+
+<script>
+    // Ensure PDF.js is loaded before using it
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof pdfjsLib !== 'undefined') {
+            console.log('PDF.js loaded successfully');
+        } else {
+            console.error('PDF.js not loaded');
+        }
+    });
+</script>
+
+<!-- Cache Control Meta Tags -->
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+{% endblock %}

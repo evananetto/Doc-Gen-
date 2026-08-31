@@ -1,0 +1,28 @@
+# Virtual environment
+venv/
+.venv/
+
+# Python cache
+__pycache__/
+**/__pycache__/
+*.py[cod]
+
+# Environment variables / secrets
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# Generated output
+outputs/
+
+# Uploaded/generated files
+uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Generated preview files
+static/previews/
