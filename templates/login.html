@@ -61,7 +61,13 @@
                                name="password" 
                                required 
                                placeholder="Enter your password"
-                               class="input-premium w-full pl-10 pr-4 py-3.5 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-300">
+                               class="input-premium w-full pl-10 pr-12 py-3.5 bg-white/50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none transition duration-300">
+                        <!-- Password Toggle Button -->
+                        <button type="button" 
+                                id="togglePassword"
+                                class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-indigo-600 transition-colors duration-200 focus:outline-none">
+                            <i class="fas fa-eye" id="passwordIcon"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -73,4 +79,46 @@
         </div>
     </div>
 </div>
+
+<!-- Password Toggle JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('password');
+        const passwordIcon = document.getElementById('passwordIcon');
+        
+        togglePassword.addEventListener('click', function() {
+            // Toggle the type attribute
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            // Toggle the icon
+            if (type === 'password') {
+                passwordIcon.classList.remove('fa-eye-slash');
+                passwordIcon.classList.add('fa-eye');
+            } else {
+                passwordIcon.classList.remove('fa-eye');
+                passwordIcon.classList.add('fa-eye-slash');
+            }
+        });
+    });
+</script>
+
+<style>
+    /* Additional style for the toggle button hover effect */
+    #togglePassword {
+        cursor: pointer;
+        padding: 0.5rem 0.75rem;
+        border-radius: 0.75rem;
+        transition: all 0.2s ease;
+    }
+    
+    #togglePassword:hover {
+        background: rgba(99, 102, 241, 0.08);
+    }
+    
+    #togglePassword:active {
+        transform: scale(0.92);
+    }
+</style>
 {% endblock %}

@@ -44,7 +44,7 @@ os.makedirs(os.path.join(STATIC_FOLDER, 'previews'), exist_ok=True)
 
 # Hardcoded login credentials
 USER_CREDENTIALS = {
-    os.environ.get('ADMIN_USERNAME', 'admin'): os.environ.get('ADMIN_PASSWORD', 'admin123')
+    os.environ.get('ADMIN_USERNAME', 'admin'): os.environ.get('ADMIN_PASSWORD', 'admin@123')
 }
 
 # ============= TEMPLATE STORAGE FUNCTIONS =============
