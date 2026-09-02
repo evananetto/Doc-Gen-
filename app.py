@@ -23,7 +23,7 @@ from preview import create_preview_response, cleanup_old_previews
 
 # Initialize Flask app
 app = Flask(__name__)
-app.secret_key = 'your-secret-key-here-change-in-production'
+app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
 
 # Configuration
 UPLOAD_FOLDER = 'uploads'
@@ -44,7 +44,7 @@ os.makedirs(os.path.join(STATIC_FOLDER, 'previews'), exist_ok=True)
 
 # Hardcoded login credentials
 USER_CREDENTIALS = {
-    'admin': 'admin123'
+    os.environ.get('ADMIN_USERNAME', 'admin'): os.environ.get('ADMIN_PASSWORD', 'admin123')
 }
 
 # ============= TEMPLATE STORAGE FUNCTIONS =============
